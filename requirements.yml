@@ -1,0 +1,7 @@
+---
+
+- name: deploy-functions
+  src: https://oss.help/ansible/pub/roles/d/deploy-functions-stable.tar.gz
+
+- name: lxc-reboot
+  src: https://oss.help/ansible/pub/roles/l/1/lxc-reboot-stable.tar.gz

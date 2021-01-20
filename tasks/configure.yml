@@ -1,0 +1,114 @@
+---
+
+- name: create lxd config
+  template:
+    src: lxd-config.j2
+    dest: '{{ initial_config }}'
+  register: lxd_initial_config
+
+- name: decide if to run lxd init
+  block:
+    - name: "check if {{ lxd_init_done_file }} file exists"
+      stat:
+        path: "{{ lxd_init_done_file }}"
+      register: init_done
+    - name: check addresses given and decide if to run lxd init
+      set_fact:
+        lxd_init_needed: true
+      when: >
+        (not init_done.stat.exists and (ipv4.address == "auto" or ipv6.address == "auto")) or
+        (ipv4.address != "auto" and ipv6.address != "auto")
+
+- name: prepare dirs for storage pools
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "root"
+    group: "root"
+  with_items: "{{ storage_pool_dirs }}"
+  when: storage_pool_dirs is defined and storage_pool_dirs != ''  # noqa 602
+
+- name: create directory {{ templates_dir }}/lxd
+  file:
+    path: "{{ templates_dir }}/lxd"
+    state: directory
+    owner: "root"
+    group: "root"
+  when: place_cfg_template
+
+- name: include deploy-functions
+  include_role:
+    name: deploy-functions
+  when: place_cfg_template and deploy_functions_installed is not defined
+
+- name: place inital-setup helper
+  template:
+    src: initial-setup.j2
+    dest: "{{ templates_dir }}/lxd/initial-setup"
+    owner: "root"
+    group: "root"
+    mode: 0750
+  when: place_cfg_template
+
+- name: create lxd.service.d directory
+  file:
+    path: /etc/systemd/system/lxd.service.d
+    state: directory
+    mode: '0755'
+  when: place_cfg_template
+
+- name: copy systemd unit override
+  template:
+    src: lxd-systemd-unit.j2
+    dest: "/etc/systemd/system/lxd.service.d/override.conf"
+    owner: root
+    group: root
+  when: place_cfg_template
+  notify:
+    - reload lxd unit
+    - restart lxd service
+
+- name: prepare lxd-wakeup service
+  block:
+    - name: create systemd unit for lxd-wakeup.service
+      template:
+        src: lxd-wakeup-systemd-unit.j2
+        dest: "/etc/systemd/system/lxd-wakeup.service"
+    - name: enable lxd-wakeup.service
+      systemd:
+        name: "lxd-wakeup.service"
+        enabled: true
+        daemon_reload: yes
+  when: lxd_create_wakeup_service
+
+- name: init lxd if needed
+  shell: >
+    lxd init --preseed < '{{ initial_config }}';
+    echo $(date) > '{{ lxd_init_done_file }}'
+  when: lxd_init_needed|default(false)|bool
+  changed_when: false
+
+- name: flush handlers
+  meta: flush_handlers
+
+- name: get current remotes
+  shell: lxc remote list  # noqa 305
+  register: remotes_list
+  changed_when: false
+
+- name: add ubuntu-minimal
+  shell: lxc remote add --protocol simplestreams ubuntu-minimal https://cloud-images.ubuntu.com/minimal/releases/  # noqa 305
+  when: 'ubuntu_minimal_remote is sameas true and remotes_list.stdout is defined and "ubuntu-minimal" not in remotes_list.stdout'
+
+- name: add osshelp-public
+  shell: lxc remote add  --public --protocol lxd osshelp https://lxd.osshelp.ru:443  # noqa 305
+  when: 'osshelp_remote is sameas true and remotes_list.stdout is defined and "osshelp" not in remotes_list.stdout'
+
+- name: lxc add remote
+  shell: lxc remote add {{ remote.name }} {{ remote.address }} --accept-certificate --password={{ remote.password }}  # noqa 305
+  when: 'remote.address is defined and remotes_list.stdout is defined and remote.address not in remotes_list.stdout'
+
+- name: remote as default
+  shell: lxc remote set-default {{ remote.name }}  # noqa 305
+  when: remote.default is defined and remote.default
+  changed_when: false

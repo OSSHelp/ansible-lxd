@@ -1,0 +1,15 @@
+---
+
+- name: ubuntu 16.04
+  import_tasks: ubuntu/16.04.yml
+  when: ansible_distribution_release == 'xenial'
+
+- name: ubuntu 18.04
+  import_tasks: ubuntu/18.04.yml
+  when: ansible_distribution_release == 'bionic'
+
+- name: enable service
+  service:
+    name: 'lxd'
+    state: started
+    enabled: yes

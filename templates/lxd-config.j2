@@ -1,0 +1,58 @@
+# Global parameters
+config:
+{% if http_address is defined %}  core.https_address: "{{ http_address }}"
+{% endif %}
+{% if trust_password is defined %}  core.trust_password: "{{ trust_password }}"
+{% endif %}
+# Storage pools
+storage_pools:
+{% for item in storage_pools %}
+- name: {{ item.name }}
+  driver: {{ item.driver }}
+{% if item.params is defined %}
+  config:
+{% for item in item.params %}
+    {{ item.param }}: {{ item.value }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+# Network devices
+networks:
+- name: {{ br_name }}
+  type: bridge
+  config:
+    ipv4.address: {{ ipv4.address | default('auto') }}
+    ipv4.nat: {{ ipv4.nat | default('true') }}
+    ipv6.address: {{ ipv6.address | default('auto') }}
+    ipv6.nat: {{ ipv6.nat | default('true') }}
+{% if dnsmasq_params is defined or lxd_dnsmasq_default_params is defined %}
+    raw.dnsmasq: |
+{% if lxd_dnsmasq_default_params is defined %}
+{% for item in lxd_dnsmasq_default_params|sort %}
+      {{ item }}
+{% endfor %}
+{% endif %}
+{% if dnsmasq_params is defined %}
+{% for item in dnsmasq_params|sort %}
+      {{ item }}
+{% endfor %}
+{% endif %}
+{% endif %}
+
+profiles:
+- name: default
+  config:
+{% if nesting_by_default %}    security.nesting: "true"
+{% endif %}
+{% if privileged_by_default %}    security.privileged: "true"
+{% endif %}
+  devices:
+    eth0:
+      nictype: bridged
+      parent: {{ br_name }}
+      type: nic
+    root:
+      path: /
+      pool: default
+      type: disk

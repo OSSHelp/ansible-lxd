@@ -1,0 +1,14 @@
+---
+- name: add xenial-backports
+  apt_repository:
+    repo: deb http://archive.ubuntu.com/ubuntu xenial-backports main restricted universe multiverse
+    state: present
+
+- name: package installation
+  apt:
+    name: "{{ lxd_packages }}"
+    state: present
+    default_release: xenial-backports
+    update_cache: true
+    cache_valid_time: 86400
+  register: lxd_installed

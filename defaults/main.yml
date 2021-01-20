@@ -1,0 +1,35 @@
+---
+
+lxd_setup: full
+
+br_name: 'lxdbr0'
+# http_address: '127.0.0.1:8443'
+# trust_password: 'very-unique-string-here'
+ipv4: {address: 'auto', nat: true}
+ipv6: {address: 'auto', nat: true}
+nesting_by_default: false
+privileged_by_default: false
+initial_config: '/usr/local/etc/lxd-init-config.yml'
+lxd_init_done_file: '/var/lib/lxd/init.done'
+ubuntu_minimal_remote: true
+osshelp_remote: true
+lxd_create_wakeup_service: false
+lxd_dnsmasq_default_params: {'expand-hosts'}
+
+remote:
+  target_user: 'root'
+  default: false
+
+templates_dir: /usr/local/osshelp
+place_cfg_template: false
+
+lxd_packages:
+  - lxd=3.*
+  - lxd-client=3.*
+  - apparmor
+
+storage_pool_dirs: []
+
+storage_pools: [
+  { name: default, driver: dir }
+]

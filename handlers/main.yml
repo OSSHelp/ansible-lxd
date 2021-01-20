@@ -1,0 +1,10 @@
+---
+
+- name: reload lxd unit
+  systemd:
+    daemon_reload: yes
+
+- name: restart lxd service
+  service:
+    name: lxd
+    state: restarted

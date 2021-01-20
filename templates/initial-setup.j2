@@ -1,0 +1,67 @@
+#!/bin/bash
+
+scriptname="${0##*/}"
+lib_path="/usr/local/include/osshelp/deploy-functions.sh"
+log_file="/var/log/${scriptname}.log"
+
+exit_code=1
+
+default_profile="/usr/local/osshelp/profiles/default.yml"
+init_needed=0
+init_flag="/var/lib/lxd/init.done"
+{% if remote.password is defined %}
+remote_password="{{ remote.password }}"
+{% endif %}
+
+test -r "${lib_path}" && . "${lib_path}" "${@}"
+
+ipv4_value=$(get_value "networks[0].config.[ipv4.address]" "{{ initial_config }}" auto)
+ipv6_value=$(get_value "networks[0].config.[ipv4.address]" "{{ initial_config }}" auto)
+
+test "${ipv4_value}" != "auto" -a "${ipv6_value}" != "auto" && init_needed=1
+test "${ipv4_value}" == "auto" -o "${ipv6_value}" == "auto" && {
+  test -f "${init_flag}" || init_needed=1
+}
+
+test "${init_needed}" == 1 && {
+  # replace remote password in initial_config if key is present in pushed profile
+  test -r "${default_profile}" && {
+    key_exists_in_current_yml "lxd.remote-password" && {
+      remote_password=$(get_value lxd.remote-password "${default_profile}")
+      yq w --inplace "{{ initial_config }}" "config.[core.trust_password]" "${remote_password}"
+    }
+  }
+
+  # we should initialize it
+  lxd init --preseed < "{{ initial_config }}" && \
+    date > "${init_flag}"
+}
+
+# restore configuration
+test -r "${init_flag}" || {
+{% if remote.target_user is defined and remote.name is defined and remote.address is defined %}
+  test "{{remote.target_user}}" == "root" && client_config="/root/.config/lxc/config.yml"
+  test "{{remote.target_user}}" != "root" && client_config="/home/{{remote.target_user}}/.config/lxc/config.yml"
+  # delete remote if exists (certs might've changed)
+  grep -q "{{ remote.name }}" "${client_config}" && {
+    sudo -H -u {{remote.target_user}} lxc remote set-default local
+    sudo -H -u {{remote.target_user}} lxc remote remove "{{ remote.name }}"
+  }
+  # add remote again
+  sudo -H -u {{remote.target_user}} lxc remote add {{ remote.name }} {{ remote.address }} --accept-certificate --password="${remote_password}"
+  # adding ubuntu-minimal by default
+  grep -q "ubuntu-minimal" "${client_config}" || \
+    sudo -H -u {{remote.target_user}} lxc remote add --protocol simplestreams ubuntu-minimal https://cloud-images.ubuntu.com/minimal/releases/
+  # adding osshelp-public by default
+  grep -q "osshelp" "${client_config}" || \
+    sudo -H -u {{remote.target_user}} lxc remote add --public --protocol lxd osshelp https://lxd.osshelp.ru:443
+
+{% if remote.default is defined and remote.default %}
+  # set remote as default
+  sudo -H -u {{remote.target_user}} lxc remote set-default "{{ remote.name }}"
+{% endif %}
+{% endif %}
+
+}
+
+exit 0

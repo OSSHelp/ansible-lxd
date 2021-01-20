@@ -1,0 +1,12 @@
+[Unit]
+Description=Setup LXD
+After=network.target lxd.socket
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/lxc info
+RemainAfterExit=true
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target

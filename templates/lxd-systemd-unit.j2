@@ -1,0 +1,7 @@
+[Service]
+{% if ansible_distribution_release == 'bionic' %}
+ExecStartPost=+{{ templates_dir }}/lxd/initial-setup
+{% elif ansible_distribution_release == 'xenial' %}
+PermissionsStartOnly=true
+ExecStartPost={{ templates_dir }}/lxd/initial-setup
+{% endif %}
