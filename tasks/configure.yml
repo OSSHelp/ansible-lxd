@@ -74,6 +74,9 @@
       template:
         src: lxd-wakeup-systemd-unit.j2
         dest: "/etc/systemd/system/lxd-wakeup.service"
+        owner: root
+        group: root
+        mode: 0644
     - name: enable lxd-wakeup.service
       systemd:
         name: "lxd-wakeup.service"
