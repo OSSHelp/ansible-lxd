@@ -8,6 +8,10 @@
   import_tasks: ubuntu/18.04.yml
   when: ansible_distribution_release == 'bionic'
 
+- name: ubuntu 20.04
+  import_tasks: ubuntu/20.04.yml
+  when: ansible_distribution_release == 'focal'
+
 - name: enable service
   service:
     name: 'lxd'

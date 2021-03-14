@@ -1,0 +1,30 @@
+---
+- name: install dependences
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - software-properties-common
+      - apt-utils
+    update_cache: true
+    cache_valid_time: 86400
+
+- name: add osshelp apt-key
+  apt_key:
+    url: https://pkgs.osshelp.ru/public.key
+
+- name: add osshelp repository
+  apt_repository:
+    repo: 'deb https://pkgs.osshelp.ru/ubuntu/ focal-testing main restricted universe multiverse'
+    filename: osshelp-testing
+    update_cache: true
+
+- name: package installation
+  apt:
+    name:
+      - lxd-client
+      - lxd
+      - apparmor
+    default_release: focal-testing
+    update_cache: true
+    cache_valid_time: 86400
