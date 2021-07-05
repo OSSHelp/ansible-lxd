@@ -56,6 +56,11 @@ Make sure that:
 1. Role is able to create the `lxd_init_done_file` (see above)
 1. `ipv4.address` and `ipv6.address` variables are not set to `auto` in your playbook
 
+### Errors on initialization
+
+- If you get `Failed to create network` errors - try using a newer version of [bind9](https://gitea.osshelp.ru/ansible/bind9) role (at least v4.x.x).
+- If lxd.service does not start after reboot without any errors, use the parameter `lxd_create_wakeup_service`
+
 ### I have troubles with building an lxc-image with this role
 
 You may be lacking of [initial-setup](templates/initial-setup.j2) functionality. Make sure that you've set the `place_cfg_template` param to `true` (see above). If it will not help, describe your problem with an issue, we'll try to investigate and fix it.
