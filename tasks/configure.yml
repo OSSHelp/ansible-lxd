@@ -91,6 +91,28 @@
   when: lxd_init_needed|default(false)|bool
   changed_when: false
 
+- name: set subuids
+  lineinfile:
+    path: /etc/subuid
+    state: present
+    regexp: '^{{ item.key }}:.+'
+    line: '{{ item.key }}:{{ item.value }}'
+  with_dict: "{{ lxd_set_subuid }}"
+  when: lxd_set_subuid | length > 0
+  notify:
+    - restart lxd service
+
+- name: set subgids
+  lineinfile:
+    path: /etc/subgid
+    state: present
+    regexp: '^{{ item.key }}:.+'
+    line: '{{ item.key }}:{{ item.value }}'
+  with_dict: "{{ lxd_set_subgid }}"
+  when: lxd_set_subgid | length > 0
+  notify:
+    - restart lxd service
+
 - name: flush handlers
   meta: flush_handlers
 

@@ -15,6 +15,8 @@ ubuntu_minimal_remote: true
 osshelp_remote: true
 lxd_create_wakeup_service: false
 lxd_dnsmasq_default_params: {'expand-hosts'}
+lxd_set_subuid: []
+lxd_set_subgid: []
 
 remote:
   target_user: 'root'
