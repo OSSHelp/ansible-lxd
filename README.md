@@ -45,7 +45,7 @@ Usually there is no need in changing theese.
 | `initial_config` | `/usr/local/etc/lxd-init-config.yml` | Absolute path to config for further lxd initialization. |
 | `lxd_init_done_file` | `/var/lib/lxd/init.done` | Absolute path for file, indicating that lxd initialization was already done. |
 | `templates_dir` | `/usr/local/osshelp` | Absolute path to directory for templates storage (where default-setup usually placed). |
-| `lxd_set_subuid`, `lxd_set_subgid` | `[]` | Dictionaries for setting custom subuid/subgid ranges. See examples in FAQ section below. |
+| `lxd_set_subuid`, `lxd_set_subgid` | `[]` | Dictionaries for setting custom subuid/subgid ranges. Check examples in FAQ section below before using it in your builds! |
 
 ## FAQ
 
@@ -67,6 +67,8 @@ Make sure that:
 You may be lacking of [initial-setup](templates/initial-setup.j2) functionality. Make sure that you've set the `place_cfg_template` param to `true` (see above). If it will not help, describe your problem with an issue, we'll try to investigate and fix it.
 
 ### I need to set custom subuid/subgid ranges
+
+**Warning** Changing ranges on systems with already deployed containers will result in invalid permissions on mounted persistent data. You can remap permissions with [fuidshift](http://manpages.ubuntu.com/manpages/cosmic/man1/fuidshift.1.html) tool.
 
 Example of setting custom subuid/subgid ranges with `lxd_set_subuid` and `lxd_set_subgid` dictionaries:
 
