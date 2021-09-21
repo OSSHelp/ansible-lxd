@@ -22,6 +22,10 @@ networks:
 - name: {{ br_name }}
   type: bridge
   config:
+{% if dns_config.domain is defined %}    dns.domain: {{ dns_config.domain }}
+{% endif %}
+{% if dns_config.mode is defined %}    dns.mode: {{ dns_config.mode }}
+{% endif %}
     ipv4.address: {{ ipv4.address | default('auto') }}
     ipv4.nat: {{ ipv4.nat | default('true') }}
     ipv6.address: {{ ipv6.address | default('auto') }}
