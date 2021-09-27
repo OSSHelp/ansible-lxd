@@ -30,6 +30,11 @@ networks:
     ipv4.nat: {{ ipv4.nat | default('true') }}
     ipv6.address: {{ ipv6.address | default('auto') }}
     ipv6.nat: {{ ipv6.nat | default('true') }}
+{% if lxd_br_params is defined %}
+{% for item in lxd_br_params|sort %}
+    {{ item.param }}: {{ item.value }}
+{% endfor %}
+{% endif %}
 {% if dnsmasq_params is defined or lxd_dnsmasq_default_params is defined %}
     raw.dnsmasq: |
 {% if lxd_dnsmasq_default_params is defined %}

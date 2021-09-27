@@ -28,6 +28,7 @@ Main params to use in playbooks.
 | `ipv4.nat` | `true` | Whether to enable NAT for IPv4. |
 | `ipv6.address` | `auto` | IPv6 subnet to create. |
 | `ipv6.nat` | `true` | Whether to enable NAT for IPv6. |
+| `lxd_br_params` | `[]` | Describe custom params for network bridge. |
 | `nesting_by_default` | `false` | Whether to set [nesting mode](https://ubuntu.com/blog/nested-containers-in-lxd) for containers by default. |
 | `privileged_by_default` | `false` | Whether to create containers [privileged](https://linuxcontainers.org/ru/lxc/security/) by default. |
 | `ubuntu_minimal_remote` | `true` | Whether to add remote with minimal Ubuntu images. |
