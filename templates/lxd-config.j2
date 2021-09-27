@@ -31,7 +31,7 @@ networks:
     ipv6.address: {{ ipv6.address | default('auto') }}
     ipv6.nat: {{ ipv6.nat | default('true') }}
 {% if lxd_br_params is defined %}
-{% for item in lxd_br_params|sort %}
+{% for item in lxd_br_params %}
     {{ item.param }}: {{ item.value }}
 {% endfor %}
 {% endif %}
