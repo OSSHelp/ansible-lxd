@@ -12,11 +12,16 @@ init_flag="/var/lib/lxd/init.done"
 {% if remote.password is defined %}
 remote_password="{{ remote.password }}"
 {% endif %}
+{% if remote.target_user is defined and remote.name is defined and remote.address is defined %}
+remote_target_user="{{ remote.target_user }}"
+remote_address="{{ remote.address }}"
+remote_name="{{ remote.name }}"
+{% endif %}
 
 test -r "${lib_path}" && . "${lib_path}" "${@}"
 
 ipv4_value=$(get_value "networks[0].config.[ipv4.address]" "{{ initial_config }}" auto)
-ipv6_value=$(get_value "networks[0].config.[ipv4.address]" "{{ initial_config }}" auto)
+ipv6_value=$(get_value "networks[0].config.[ipv6.address]" "{{ initial_config }}" auto)
 
 test "${ipv4_value}" != "auto" -a "${ipv6_value}" != "auto" && init_needed=1
 test "${ipv4_value}" == "auto" -o "${ipv6_value}" == "auto" && {
@@ -35,33 +40,28 @@ test "${init_needed}" == 1 && {
   # we should initialize it
   lxd init --preseed < "{{ initial_config }}" && \
     date > "${init_flag}"
-}
-
-# restore configuration
-test -r "${init_flag}" || {
 {% if remote.target_user is defined and remote.name is defined and remote.address is defined %}
-  test "{{remote.target_user}}" == "root" && client_config="/root/.config/lxc/config.yml"
-  test "{{remote.target_user}}" != "root" && client_config="/home/{{remote.target_user}}/.config/lxc/config.yml"
+  # restore configuration
+  test "{{ remote.target_user }}" == "root" && client_config="/root/.config/lxc/config.yml"
+  test "{{ remote.target_user }}" != "root" && client_config="/home/{{remote.target_user}}/.config/lxc/config.yml"
   # delete remote if exists (certs might've changed)
   grep -q "{{ remote.name }}" "${client_config}" && {
-    sudo -H -u {{remote.target_user}} lxc remote set-default local
-    sudo -H -u {{remote.target_user}} lxc remote remove "{{ remote.name }}"
+    sudo -H -u "${remote_target_user}" lxc remote set-default local
+    sudo -H -u "${remote_target_user}" lxc remote remove "{{ remote.name }}"
   }
   # add remote again
-  sudo -H -u {{remote.target_user}} lxc remote add {{ remote.name }} {{ remote.address }} --accept-certificate --password="${remote_password}"
+  sudo -H -u "${remote_target_user}" lxc remote add "${remote_name}" "${remote_address}" --accept-certificate --password="${remote_password}"
   # adding ubuntu-minimal by default
   grep -q "ubuntu-minimal" "${client_config}" || \
-    sudo -H -u {{remote.target_user}} lxc remote add --protocol simplestreams ubuntu-minimal https://cloud-images.ubuntu.com/minimal/releases/
+    sudo -H -u "${remote_target_user}" lxc remote add --protocol simplestreams ubuntu-minimal https://cloud-images.ubuntu.com/minimal/releases/
   # adding osshelp-public by default
   grep -q "osshelp" "${client_config}" || \
-    sudo -H -u {{remote.target_user}} lxc remote add --public --protocol lxd osshelp https://lxd.osshelp.ru:443
-
+    sudo -H -u "${remote_target_user}" lxc remote add --public --protocol lxd osshelp https://lxd.osshelp.ru:443
 {% if remote.default is defined and remote.default %}
   # set remote as default
-  sudo -H -u {{remote.target_user}} lxc remote set-default "{{ remote.name }}"
+  sudo -H -u {{ remote.target_user }} lxc remote set-default "${remote_name}"
 {% endif %}
 {% endif %}
-
 }
 
 exit 0
