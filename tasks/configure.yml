@@ -126,7 +126,7 @@
   when: 'ubuntu_minimal_remote is sameas true and remotes_list.stdout is defined and "ubuntu-minimal" not in remotes_list.stdout'
 
 - name: add osshelp-public
-  shell: lxc remote add  --public --protocol lxd osshelp https://lxd.osshelp.ru:443  # noqa 305
+  shell: lxc remote add  --public --protocol lxd osshelp https://lxd.osshelp.io:443  # noqa 305
   when: 'osshelp_remote is sameas true and remotes_list.stdout is defined and "osshelp" not in remotes_list.stdout'
 
 - name: lxc add remote

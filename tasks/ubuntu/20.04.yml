@@ -11,11 +11,11 @@
 
 - name: add osshelp apt-key
   apt_key:
-    url: https://pkgs.osshelp.ru/public.key
+    url: https://pkgs.osshelp.io/public.key
 
 - name: add osshelp repository
   apt_repository:
-    repo: 'deb https://pkgs.osshelp.ru/ubuntu/ focal-testing main restricted universe multiverse'
+    repo: 'deb https://pkgs.osshelp.io/ubuntu/ focal-testing main restricted universe multiverse'
     filename: osshelp-testing
     update_cache: true
 
