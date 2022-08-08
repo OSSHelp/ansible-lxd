@@ -23,6 +23,7 @@ Main params to use in playbooks.
 | `lxd_setup` | `full` | Setup mode. See [OSSHelp KB article](https://oss.help/kb4895) |
 | `br_name` | `lxdbr0` | Name of bridge to be created. |
 | `dns_config.domain` | - | Domain to advertise to DHCP clients and use for DNS resolution. |
+| `lxd_liblxc_ver` | check [main.yml](defaults/main.yml) | Pinned version of liblxc1* libs. Versions newer than v4.0.6 may break interface naming (eth0 => vethXXXXX). |
 | `dns_config.mode` | - | DNS registration mode. |
 | `ipv4.address` | `auto` | IPv4 subnet to create. |
 | `ipv4.nat` | `true` | Whether to enable NAT for IPv4. |

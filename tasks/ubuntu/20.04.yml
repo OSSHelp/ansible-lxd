@@ -28,3 +28,12 @@
     default_release: focal-testing
     update_cache: true
     cache_valid_time: 86400
+
+- name: versions higher
+  apt:
+    name:
+      - "liblxc1={{ lxd_liblxc_ver }}"
+      - "liblxc-common={{ lxd_liblxc_ver }}"
+    force: true
+    update_cache: true
+    cache_valid_time: 86400

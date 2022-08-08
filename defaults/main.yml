@@ -30,8 +30,10 @@ lxd_packages:
   - lxd-client=3.*
   - apparmor
 
-storage_pool_dirs: []
+# versions newer than 4.0.6 may break interface naming (eth0 => vethXXXXX)
+lxd_liblxc_ver: '1:4.0.2-0ubuntu1'
 
+storage_pool_dirs: []
 storage_pools: [
   { name: default, driver: dir }
 ]
