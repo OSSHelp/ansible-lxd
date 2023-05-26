@@ -1,6 +1,6 @@
 # lxd
 
-[![Build Status](https://drone.osshelp.ru/api/badges/ansible/lxd/status.svg)](https://drone.osshelp.ru/ansible/lxd)
+[![Build Status](https://drone.osshelp.io/api/badges/ansible/lxd/status.svg)](https://drone.osshelp.io/ansible/lxd)
 
 Installs LXD configures it.
 
@@ -32,8 +32,9 @@ Main params to use in playbooks.
 | `lxd_br_params` | `[]` | Describe custom params for network bridge. |
 | `nesting_by_default` | `false` | Whether to set [nesting mode](https://ubuntu.com/blog/nested-containers-in-lxd) for containers by default. |
 | `privileged_by_default` | `false` | Whether to create containers [privileged](https://linuxcontainers.org/ru/lxc/security/) by default. |
+| `lxd_default_apparmor` | - | Apparmor profile to use by default, [details](https://linuxcontainers.org/lxc/manpages/man5/lxc.container.conf.5.html) |
 | `ubuntu_minimal_remote` | `true` | Whether to add remote with minimal Ubuntu images. |
-| `osshelp_remote` | `true` | Whether to add the remote with [our images](https://gitea.osshelp.ru/org/lxc/dashboard). |
+| `osshelp_remote` | `true` | Whether to add the remote with [our images](https://gitea.osshelp.io/org/lxc/dashboard). |
 | `lxd_create_wakeup_service` | `false` | Whether to create a service for forced daemon wake up via oneshot systemd-unit (daemon sleeps until the first call) |
 | `storage_pool_dirs` | - | Dirs to be created for custom storage pools. |
 | `storage_pools` | `{ name: default, driver: dir }` | Array, describing needed storage pools and their params. |
@@ -63,7 +64,7 @@ Make sure that:
 
 ### Errors on initialization
 
-- If you get `Failed to create network` errors - try using a newer version of [bind9](https://gitea.osshelp.ru/ansible/bind9) role (at least v4.x.x).
+- If you get `Failed to create network` errors - try using a newer version of [bind9](https://gitea.osshelp.io/ansible/bind9) role (at least v4.x.x).
 - If lxd.service does not start after reboot without any errors, use the parameter `lxd_create_wakeup_service`
 
 ### I have troubles with building an lxc-image with this role

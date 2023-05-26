@@ -52,6 +52,8 @@ networks:
 profiles:
 - name: default
   config:
+{% if lxd_default_apparmor is defined and lxd_default_apparmor|length %}    raw.lxc: lxc.apparmor.profile={{ lxd_default_apparmor }}
+{% endif %}
 {% if nesting_by_default %}    security.nesting: "true"
 {% endif %}
 {% if privileged_by_default %}    security.privileged: "true"
